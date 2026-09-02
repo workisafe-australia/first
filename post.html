@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>投稿する</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>求人情報投稿</h1>
+
+<p></p>
+
+</header>
+
+
+
+<main class="container">
+
+
+    <form id="postForm">
+
+        <label>会社・店舗名</label>
+        <input
+            type="text"
+            id="companyName"
+            placeholder="例：ABC Restaurant"
+            required>
+    
+        <label>募集職種</label>
+        <input
+            type="text"
+            id="jobTitle"
+            placeholder="例：キッチンスタッフ"
+            required>
+    
+        <label>勤務地</label>
+        <input
+            type="text"
+            id="location"
+            placeholder="例：Sydney CBD"
+            required>
+    
+        <label>給料・勤務条件</label>
+        <textarea
+            id="workConditions"
+            placeholder="例：時給$30、Casual、週25時間"
+            required></textarea>
+    
+        <label>仕事内容・応募条件</label>
+        <textarea
+            id="jobDetails"
+            placeholder="仕事内容、経験、英語力、ビザ条件など"
+            required></textarea>
+    
+        <label>応募方法・連絡先</label>
+        <textarea
+            id="applicationInfo"
+            placeholder="応募方法、公式メール、電話番号など"
+            required></textarea>
+    
+            <label>補足・注意事項（任意）</label>
+            <textarea
+                id="notes"
+                placeholder="研修期間、服装、掲載期限など"></textarea>
+                <label>写真（最大3枚・任意）</label>
+
+<input
+    type="file"
+    id="images"
+    accept="image/*"
+    multiple
+>
+
+<p id="imageMessage">
+    最大3枚まで選択できます
+</p>
+        <button type="submit">
+            求人を掲載する
+        </button>
+    
+    </form>
+
+
+<br>
+
+
+<a href="index.html">
+
+掲示板へ戻る
+
+</a>
+
+
+
+</main>
+
+
+
+<script type="module" src="post.js"></script>
+
+
+</body>
+
+</html>

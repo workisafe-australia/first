@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>求人を編集</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>求人情報を編集</h1>
+</header>
+
+<main class="container">
+
+    <form id="editForm">
+
+        <label>会社・店舗名</label>
+        <input
+            type="text"
+            id="companyName"
+            required>
+
+        <label>募集職種</label>
+        <input
+            type="text"
+            id="jobTitle"
+            required>
+
+        <label>勤務地</label>
+        <input
+            type="text"
+            id="location"
+            required>
+
+        <label>給料・勤務条件</label>
+        <textarea
+            id="workConditions"
+            required></textarea>
+
+        <label>仕事内容・応募条件</label>
+        <textarea
+            id="jobDetails"
+            required></textarea>
+
+        <label>応募方法・連絡先</label>
+        <textarea
+            id="applicationInfo"
+            required></textarea>
+
+        <label>補足・注意事項（任意）</label>
+        <label>現在の写真</label>
+<div id="currentImages"></div>
+
+<label>写真を変更（最大3枚・任意）</label>
+<input
+    type="file"
+    id="images"
+    accept="image/*"
+    multiple
+>
+
+<p>※新しい写真を選ばなければ、現在の写真がそのまま残ります。</p>
+        <textarea
+            id="notes"></textarea>
+
+        <button type="submit">
+            変更を保存
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="index.html">
+        求人一覧へ戻る
+    </a>
+
+</main>
+
+<script type="module" src="edit.js"></script>
+
+</body>
+
+</html>

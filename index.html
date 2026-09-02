@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>シドキュウ</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     トップ画像
+========================= -->
+
+<header class="main-header">
+
+    <button
+        id="menuButton"
+        class="menu-button"
+        aria-label="メニューを開く"
+    >
+        ☰
+    </button>
+
+</header>
+
+
+
+<!-- =========================
+     サイドメニュー
+========================= -->
+
+<aside
+    id="sideMenu"
+    class="side-menu"
+>
+
+    <button
+        id="closeMenuButton"
+        class="close-menu"
+        aria-label="メニューを閉じる"
+    >
+        ✕
+    </button>
+
+
+    <h2>
+        メニュー
+    </h2>
+
+
+    <button id="jobsTab">
+        💼 求人を見る
+    </button>
+
+
+    <button id="communityTab">
+        💬 コミュニティを見る
+    </button>
+
+
+    <hr>
+
+
+    <button id="newPostButton">
+        ＋ 求人を投稿
+    </button>
+
+
+    <button id="communityPostButton">
+        ＋ 情報共有を投稿
+    </button>
+
+
+    <hr>
+
+
+    <a href="terms.html">
+        利用規約
+    </a>
+
+
+    <a href="privacy.html">
+        プライバシーポリシー
+    </a>
+
+
+    <a href="contact.html">
+        お問い合わせ
+    </a>
+
+</aside>
+
+
+
+<!-- =========================
+     メイン
+========================= -->
+
+<main class="container">
+
+
+    <!-- 検索 -->
+
+    <section class="search-section">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="会社名・職種・地域で検索"
+        >
+
+        <button id="searchButton">
+            検索
+        </button>
+
+    </section>
+
+
+
+    <!-- =========================
+         求人
+    ========================= -->
+
+    <section id="jobsSection">
+
+        <h2>
+            💼 求人
+        </h2>
+
+        <div id="postList"></div>
+
+    </section>
+
+
+
+    <!-- =========================
+         コミュニティ
+    ========================= -->
+
+    <section
+        id="communitySection"
+        style="display: none;"
+    >
+
+        <h2>
+            💬 コミュニティ
+        </h2>
+
+        <div id="communityList"></div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =========================
+     画像拡大モーダル
+========================= -->
+
+<div
+    id="imageModal"
+    class="image-modal"
+>
+
+    <span
+        id="closeImageModal"
+        class="image-modal-close"
+    >
+        &times;
+    </span>
+
+    <img
+        id="modalImage"
+        class="image-modal-content"
+        alt="投稿画像"
+    >
+
+</div>
+
+
+
+<!-- =========================
+     JavaScript
+========================= -->
+
+<script
+    type="module"
+    src="script.js"
+></script>
+
+
+</body>
+
+</html>

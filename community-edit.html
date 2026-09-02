@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>コミュニティ投稿を編集</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>💬 投稿を編集</h1>
+</header>
+
+<main class="container">
+
+    <form id="communityEditForm">
+
+        <label>タイトル</label>
+        <input
+            type="text"
+            id="title"
+            required>
+
+        <label>カテゴリ</label>
+        <select id="category" required>
+
+            <option value="sharehouse">
+                シェアハウス
+            </option>
+
+            <option value="life">
+                生活情報
+            </option>
+
+            <option value="event">
+                イベント
+            </option>
+
+            <option value="question">
+                質問
+            </option>
+
+            <option value="recommend">
+                おすすめ
+            </option>
+
+            <option value="other">
+                その他
+            </option>
+
+        </select>
+
+        <label>内容</label>
+
+        <textarea
+            id="content"
+            required>
+        </textarea>
+
+
+        <label>現在の写真</label>
+
+        <div id="currentImages">
+        </div>
+
+
+        <label>
+            写真を追加（合計最大3枚）
+        </label>
+
+        <input
+            type="file"
+            id="images"
+            accept="image/*"
+            multiple>
+
+
+        <p>
+            現在の写真＋新しい写真で最大3枚まで
+        </p>
+
+
+        <button type="submit">
+            変更を保存
+        </button>
+
+    </form>
+
+
+    <br>
+
+    <a href="index.html">
+        ← コミュニティへ戻る
+    </a>
+
+</main>
+
+
+<script
+    type="module"
+    src="community-edit.js">
+</script>
+
+</body>
+
+</html>

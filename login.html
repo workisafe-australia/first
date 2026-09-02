@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ログイン / 新規登録</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>🔑 ログイン / 新規登録</h1>
+
+<p>シドホリ</p>
+
+</header>
+
+
+
+<main class="container">
+
+
+<!-- 切り替えボタン -->
+<div class="auth-tabs">
+
+    <button
+        type="button"
+        id="showLoginButton"
+        class="active">
+        ログイン
+    </button>
+
+    <button
+        type="button"
+        id="showSignupButton">
+        新規登録
+    </button>
+
+</div>
+
+
+<!-- =========================
+     ログイン
+========================= -->
+
+<form id="loginForm">
+
+    <h2>ログイン</h2>
+
+
+    <label>
+        メールアドレス
+    </label>
+
+    <input
+        type="email"
+        id="loginEmail"
+        placeholder="example@email.com"
+        required>
+
+
+    <label>
+        パスワード
+    </label>
+
+    <input
+        type="password"
+        id="loginPassword"
+        placeholder="パスワード"
+        required>
+
+
+    <button type="submit">
+        ログイン
+    </button>
+
+</form>
+
+
+
+<!-- =========================
+     新規登録
+========================= -->
+
+<form
+    id="signupForm"
+    style="display: none;">
+
+    <h2>新規登録</h2>
+
+
+    <label>
+        メールアドレス
+    </label>
+
+    <input
+        type="email"
+        id="signupEmail"
+        placeholder="example@email.com"
+        required>
+
+
+    <label>
+        パスワード
+    </label>
+
+    <input
+        type="password"
+        id="signupPassword"
+        placeholder="6文字以上"
+        minlength="6"
+        required>
+
+
+    <!-- 利用規約への同意 -->
+    <label class="terms-check">
+
+        <input
+            type="checkbox"
+            id="agreeTerms"
+            required>
+
+        <span>
+            <a
+                href="terms.html"
+                target="_blank">
+                利用規約
+            </a>
+
+            と
+
+            <a
+                href="privacy.html"
+                target="_blank">
+                プライバシーポリシー
+            </a>
+
+            に同意します
+        </span>
+
+    </label>
+
+
+    <button type="submit">
+        アカウントを作成
+    </button>
+
+</form>
+
+
+
+<br>
+
+
+<a href="index.html">
+    掲示板へ戻る
+</a>
+
+
+</main>
+
+
+
+<script
+    type="module"
+    src="auth.js">
+</script>
+
+
+</body>
+
+</html>

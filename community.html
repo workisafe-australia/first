@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情報共有 | シドホリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>💬 情報共有</h1>
+    <p>シドニー生活の情報を共有しよう</p>
+</header>
+
+<main class="container">
+
+    <form id="communityForm">
+
+        <label>タイトル</label>
+        <input
+            type="text"
+            id="title"
+            placeholder="例：おすすめのシェアハウスありますか？"
+            required>
+
+        <label>カテゴリ</label>
+        <select id="category" required>
+            <option value="">選択してください</option>
+            <option value="sharehouse">シェアハウス</option>
+            <option value="life">生活情報</option>
+            <option value="event">イベント</option>
+            <option value="question">質問</option>
+            <option value="recommend">おすすめ</option>
+            <option value="other">その他</option>
+        </select>
+
+        <label>内容</label>
+        <textarea
+            id="content"
+            placeholder="共有したい内容を書いてください"
+            required></textarea>
+            <label for="images">写真（最大3枚）</label>
+
+            <input
+                type="file"
+                id="images"
+                accept="image/*"
+                multiple
+            >
+            
+            <p>写真は最大3枚まで投稿できます。</p>
+        <button type="submit">
+            投稿する
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="index.html">
+        ← トップへ戻る
+    </a>
+
+</main>
+
+<script type="module" src="community.js"></script>
+
+</body>
+
+</html>
