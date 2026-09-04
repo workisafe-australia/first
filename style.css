@@ -61,37 +61,25 @@ header p {
 .main-header {
     position: relative;
 
-    /* 背景画像 */
     background-image: url("sydney-hero.png");
-
-    /* 画面いっぱいに画像を広げる */
     background-size: cover;
-
-    /* 画像の中心を表示 */
     background-position: center;
-
-    /* 画像を繰り返さない */
     background-repeat: no-repeat;
 
-    /* ヘッダーの高さ */
     min-height: 420px;
 
-    /* 文字を中央に配置 */
     display: flex;
     align-items: center;
     justify-content: center;
 
     text-align: center;
 
-    color: black;
+    color: white;
 
     padding: 0;
 }
 
 
-/* ==================================================
-   4. トップページの文字
-================================================== */
 /* ==================================================
    4. トップページの文字
 ================================================== */
@@ -115,7 +103,6 @@ header p {
 
     color: white;
 
-    /* 写真の上でも文字を見やすくする */
     text-shadow:
         0 2px 4px rgba(0, 0, 0, 0.8),
         0 4px 12px rgba(0, 0, 0, 0.5);
@@ -134,13 +121,10 @@ header p {
 
     color: white;
 
-    /* 写真の上でも文字を見やすくする */
     text-shadow:
         0 2px 4px rgba(0, 0, 0, 0.9),
         0 3px 8px rgba(0, 0, 0, 0.6);
 }
-
-
 
 
 /* ==================================================
@@ -273,6 +257,8 @@ header p {
     color: #333 !important;
 
     font-size: 25px !important;
+
+    cursor: pointer;
 }
 
 
@@ -346,6 +332,11 @@ header p {
 ================================================== */
 
 .card {
+    width: 100%;
+    max-width: 100%;
+
+    overflow: hidden;
+
     background-color: white;
 
     border-radius: 12px;
@@ -365,6 +356,8 @@ header p {
 
 .card p {
     line-height: 1.6;
+
+    overflow-wrap: anywhere;
 }
 
 
@@ -425,6 +418,8 @@ form textarea,
 form select {
     width: 100%;
 
+    max-width: 100%;
+
     padding: 12px;
 
     border: 1px solid #ccc;
@@ -478,14 +473,20 @@ form button {
 
 
 /* ==================================================
-   15. 求人画像
+   15. 求人投稿の画像
 ================================================== */
 
 .job-image {
-    width: 160px;
-    height: 110px;
+    width: 10px;
+    height: 10px;
+
+    max-width: 100%;
 
     object-fit: cover;
+
+    display: block;
+
+    margin: 15px 0;
 
     border-radius: 8px;
 
@@ -494,16 +495,22 @@ form button {
 
 
 /* ==================================================
-   16. コミュニティ画像
+   16. コミュニティ投稿の画像
+
+   ★ 投稿一覧ではこのサイズになります
 ================================================== */
 
 .community-image {
-    width: 250px;
+    width: 10px;
+    height: 10px;
+
     max-width: 100%;
 
-    height: 180px;
-
     object-fit: cover;
+
+    display: block;
+
+    margin: 15px 0;
 
     border-radius: 8px;
 
@@ -521,21 +528,30 @@ form button {
 
     height: auto;
 
+    display: block;
+
+    object-fit: contain;
+
     border-radius: 10px;
 
     margin-top: 15px;
 }
 
 
+
 /* ==================================================
-   18. 編集ページ画像
+   18. 編集ページの現在の画像
 ================================================== */
 
 .edit-image-preview {
     width: 200px;
     height: 150px;
 
+    max-width: 100%;
+
     object-fit: cover;
+
+    display: block;
 
     border-radius: 8px;
 
@@ -545,6 +561,7 @@ form button {
 
 /* ==================================================
    19. 画像モーダル
+   写真をクリックした時の拡大表示
 ================================================== */
 
 .image-modal {
@@ -567,6 +584,9 @@ form button {
 
 .image-modal-content {
     display: block;
+
+    width: auto;
+    height: auto;
 
     max-width: 90%;
     max-height: 85vh;
@@ -714,6 +734,8 @@ a:hover {
 
     .card {
         padding: 18px;
+
+        overflow: hidden;
     }
 
 
@@ -724,15 +746,31 @@ a:hover {
     }
 
 
-    /* ---------- コミュニティ画像 ---------- */
+    /* ---------- 求人画像 ---------- */
 
-    .community-image {
-        width: 100%;
-        height: auto;
+    .job-image {
+        width: 150px;
+        height: 100px;
 
-        max-height: 230px;
+        max-width: 100%;
+
+        object-fit: cover;
     }
 
+
+    /* ---------- コミュニティ投稿画像 ---------- */
+
+    .community-image {
+        width: 100px !important;
+        height: 70px !important;
+        max-width: 100px !important;
+        max-height: 70px !important;
+    
+        object-fit: cover;
+    
+        display: block;
+        margin: 10px 0;
+    }
 
     /* ---------- 詳細画像 ---------- */
 
@@ -740,7 +778,10 @@ a:hover {
         width: 100%;
         height: auto;
 
-        max-height: 260px;
+        max-width: 100%;
+        max-height: 300px;
+
+        object-fit: contain;
     }
 
 
@@ -749,5 +790,53 @@ a:hover {
     .edit-image-preview {
         width: 150px;
         height: 110px;
+
+        max-width: 100%;
+
+        object-fit: cover;
     }
+
+
+    /* ---------- 画像モーダル ---------- */
+
+    .image-modal-content {
+        max-width: 95%;
+        max-height: 80vh;
+    }
+}
+/* ========================================
+   投稿画像サイズ 最終設定
+======================================== */
+
+.community-image,
+.job-image,
+.job-thumbnail {
+    width: 80px !important;
+    height: 55px !important;
+    max-width: 80px !important;
+    max-height: 55px !important;
+    object-fit: cover !important;
+}
+
+/* スマホ */
+@media (max-width: 600px) {
+    .community-image,
+    .job-image,
+    .job-thumbnail {
+        width: 60px !important;
+        height: 45px !important;
+        max-width: 60px !important;
+        max-height: 45px !important;
+    }
+}
+@media (max-width: 600px) {
+
+    #communityList img {
+        width: 50px !important;
+        height: 40px !important;
+        max-width: 50px !important;
+        max-height: 40px !important;
+        object-fit: cover !important;
+    }
+
 }
