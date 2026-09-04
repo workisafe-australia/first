@@ -14,1330 +14,829 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 
-// ========================================
-// 管理者
-// ========================================
+// ==================================================
+// 1. 管理者
+// ==================================================
 
-// ↓↓↓ Firebase Authenticationで確認した
-// 自分のUIDに変更する
 const ADMIN_UID = "hLj5CZ3ZyEcQXMJsMc0pFLbHc8j2";
 
 
-// ========================================
-// HTML要素
-// ========================================
+// ==================================================
+// 2. HTML要素
+// ==================================================
 
-const postList =
-    document.getElementById("postList");
+const postList = document.getElementById("postList");
+const communityList = document.getElementById("communityList");
 
-const communityList =
-    document.getElementById("communityList");
+const jobsSection = document.getElementById("jobsSection");
+const communitySection = document.getElementById("communitySection");
 
-const jobsSection =
-    document.getElementById("jobsSection");
+const jobsTab = document.getElementById("jobsTab");
+const communityTab = document.getElementById("communityTab");
 
-const communitySection =
-    document.getElementById("communitySection");
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("searchButton");
 
-const jobsTab =
-    document.getElementById("jobsTab");
+const newPostButton = document.getElementById("newPostButton");
+const communityPostButton = document.getElementById("communityPostButton");
 
-const communityTab =
-    document.getElementById("communityTab");
+const menuButton = document.getElementById("menuButton");
+const sideMenu = document.getElementById("sideMenu");
+const closeMenuButton = document.getElementById("closeMenuButton");
 
-const searchInput =
-    document.getElementById("searchInput");
-
-const searchButton =
-    document.getElementById("searchButton");
-
-const newPostButton =
-    document.getElementById("newPostButton");
-
-const communityPostButton =
-    document.getElementById("communityPostButton");
+const imageModal = document.getElementById("imageModal");
+const modalImage = document.getElementById("modalImage");
+const closeImageModal = document.getElementById("closeImageModal");
 
 
-// サイドメニュー
-const menuButton =
-    document.getElementById("menuButton");
-
-const sideMenu =
-    document.getElementById("sideMenu");
-
-const closeMenuButton =
-    document.getElementById("closeMenuButton");
-
-
-// 写真拡大
-const imageModal =
-    document.getElementById("imageModal");
-
-const modalImage =
-    document.getElementById("modalImage");
-
-const closeImageModal =
-    document.getElementById("closeImageModal");
-
-
-// ========================================
-// データ
-// ========================================
+// ==================================================
+// 3. データ
+// ==================================================
 
 let posts = [];
-
 let communityPosts = [];
-
 let currentUser = null;
-
 let currentTab = "jobs";
 
 
-// ========================================
-// 管理者判定
-// ========================================
+// ==================================================
+// 4. 共通関数
+// ==================================================
 
 function isAdmin() {
-
-    return (
+    return Boolean(
         currentUser &&
         currentUser.uid === ADMIN_UID
     );
-
 }
 
 
-// ========================================
-// サイドメニュー
-// ========================================
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function formatMultiline(value) {
+    return escapeHTML(value).replace(/\r?\n/g, "<br>");
+}
+
+
+function formatDate(timestamp) {
+    if (
+        !timestamp ||
+        typeof timestamp.toDate !== "function"
+    ) {
+        return "";
+    }
+
+    return timestamp
+        .toDate()
+        .toLocaleString("ja-JP", {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+}
+
+
+function getCategoryName(category) {
+    const categories = {
+        sharehouse: "シェアハウス",
+        life: "生活情報",
+        event: "イベント",
+        question: "質問",
+        recommend: "おすすめ",
+        other: "その他"
+    };
+
+    return categories[category] || category || "その他";
+}
+
+
+// ==================================================
+// 5. サイドメニュー
+// ==================================================
 
 if (menuButton && sideMenu) {
-
-    menuButton.addEventListener(
-        "click",
-        () => {
-
-            sideMenu.classList.add("open");
-
-        }
-    );
-
+    menuButton.addEventListener("click", () => {
+        sideMenu.classList.add("open");
+    });
 }
 
 
 if (closeMenuButton && sideMenu) {
-
-    closeMenuButton.addEventListener(
-        "click",
-        () => {
-
-            sideMenu.classList.remove("open");
-
-        }
-    );
-
+    closeMenuButton.addEventListener("click", () => {
+        sideMenu.classList.remove("open");
+    });
 }
 
 
-// ========================================
-// ログイン状態
-// ========================================
+// ==================================================
+// 6. ログイン状態
+// ==================================================
 
-onAuthStateChanged(
-    auth,
-    (user) => {
+onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
 
-        currentUser = user;
-
-        loadPosts();
-
-        loadCommunityPosts();
-
-    }
-);
+    await Promise.all([
+        loadPosts(),
+        loadCommunityPosts()
+    ]);
+});
 
 
-// ========================================
-// 求人読み込み
-// ========================================
+// ==================================================
+// 7. 求人データ読み込み
+// ==================================================
 
 async function loadPosts() {
-
     posts = [];
 
     try {
-
-        const q = query(
+        const postsQuery = query(
             collection(db, "posts"),
             orderBy("createdAt", "desc")
         );
 
+        const snapshot = await getDocs(postsQuery);
 
-        const snapshot =
-            await getDocs(q);
-
-
-        snapshot.forEach(
-            (postDoc) => {
-
-                posts.push({
-
-                    id: postDoc.id,
-
-                    ...postDoc.data()
-
-                });
-
-            }
-        );
-
+        snapshot.forEach((postDoc) => {
+            posts.push({
+                id: postDoc.id,
+                ...postDoc.data()
+            });
+        });
 
         displayPosts(posts);
 
-
     } catch (error) {
+        console.error("求人読み込みエラー:", error);
 
-        console.error(
-            "求人読み込みエラー:",
-            error
-        );
-
+        if (postList) {
+            postList.innerHTML =
+                "<p>求人を読み込めませんでした。</p>";
+        }
     }
-
 }
 
 
-// ========================================
-// 求人表示
-// ========================================
+// ==================================================
+// 8. 求人表示
+// ==================================================
 
 function displayPosts(list) {
-
     if (!postList) {
         return;
     }
 
-
     postList.innerHTML = "";
 
-
     if (list.length === 0) {
-
         postList.innerHTML =
             "<p>現在掲載されている求人はありません。</p>";
-
         return;
-
     }
 
-
-    list.forEach((post) => {
-
-        let editButton = "";
-
-        let deleteButton = "";
-
-
-        // =================================
-        // 編集
-        // 投稿者本人だけ
-        // =================================
-
-        if (
+    const html = list.map((post) => {
+        const canEdit =
             currentUser &&
-            currentUser.uid === post.uid
-        ) {
+            currentUser.uid === post.uid;
 
-            editButton = `
-                <button
-                    class="editButton"
-                    data-id="${post.id}">
-                    編集
-                </button>
-            `;
-
-        }
-
-
-        // =================================
-        // 削除
-        // 本人 OR 管理者
-        // =================================
-
-        if (
+        const canDelete =
             currentUser &&
             (
                 currentUser.uid === post.uid ||
                 isAdmin()
-            )
-        ) {
+            );
 
-            deleteButton = `
+        const editButton = canEdit
+            ? `
+                <button
+                    class="editButton"
+                    data-id="${escapeHTML(post.id)}"
+                >
+                    編集
+                </button>
+            `
+            : "";
+
+        const deleteButton = canDelete
+            ? `
                 <button
                     class="deleteButton"
-                    data-id="${post.id}">
+                    data-id="${escapeHTML(post.id)}"
+                >
                     削除
                 </button>
-            `;
-
-        }
-
-
-        // =================================
-        // 写真
-        // =================================
+            `
+            : "";
 
         let imageHTML = "";
 
-
         if (
-            post.imageUrls &&
-            post.imageUrls.length > 0
+            Array.isArray(post.imageUrls) &&
+            post.imageUrls.length > 0 &&
+            post.imageUrls[0]
         ) {
-
             imageHTML = `
                 <img
-                    src="${post.imageUrls[0]}"
+                    src="${escapeHTML(post.imageUrls[0])}"
                     class="job-thumbnail expandable-image"
-                    alt="求人写真">
+                    alt="求人写真"
+                    loading="lazy"
+                >
             `;
-
         }
 
+        const dateHTML = formatDate(post.createdAt);
 
-        // =================================
-        // 日付
-        // =================================
-
-        let dateHTML = "";
-
-
-        if (
-            post.createdAt &&
-            typeof post.createdAt.toDate === "function"
-        ) {
-
-            dateHTML =
-                post.createdAt
-                    .toDate()
-                    .toLocaleString(
-                        "ja-JP",
-                        {
-                            year: "numeric",
-                            month: "numeric",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        }
-                    );
-
-        }
-
-
-        // =================================
-        // カード
-        // =================================
-
-        postList.innerHTML += `
-
-            <div class="card">
+        return `
+            <article class="card">
 
                 <h2>
-                    ${post.jobTitle || "職種未設定"}
+                    ${escapeHTML(post.jobTitle || "職種未設定")}
                 </h2>
 
                 <h3>
-                    ${post.companyName || "会社名未設定"}
+                    ${escapeHTML(post.companyName || "会社名未設定")}
                 </h3>
 
                 ${imageHTML}
 
                 <p>
-                    📍 ${post.location || ""}
+                    📍 ${escapeHTML(post.location || "")}
                 </p>
 
                 <p>
-                    💰 ${post.workConditions || ""}
+                    💰 ${formatMultiline(post.workConditions || "")}
                 </p>
 
                 <p class="post-date">
-                    ${dateHTML}
+                    ${escapeHTML(dateHTML)}
                 </p>
 
-                <button
-                    class="detailButton"
-                    data-id="${post.id}">
-                    詳細を見る
-                </button>
+                <div class="card-actions">
+                    <button
+                        class="detailButton"
+                        data-id="${escapeHTML(post.id)}"
+                    >
+                        詳細を見る
+                    </button>
 
-                ${editButton}
+                    ${editButton}
+                    ${deleteButton}
+                </div>
 
-                ${deleteButton}
-
-            </div>
-
+            </article>
         `;
+    }).join("");
 
-    });
-
+    postList.innerHTML = html;
 }
 
 
-// ========================================
-// コミュニティ読み込み
-// ========================================
+// ==================================================
+// 9. コミュニティデータ読み込み
+// ==================================================
 
 async function loadCommunityPosts() {
-
     communityPosts = [];
 
     try {
-
-        const q = query(
-            collection(
-                db,
-                "communityPosts"
-            ),
-            orderBy(
-                "createdAt",
-                "desc"
-            )
+        const communityQuery = query(
+            collection(db, "communityPosts"),
+            orderBy("createdAt", "desc")
         );
 
+        const snapshot = await getDocs(communityQuery);
 
-        const snapshot =
-            await getDocs(q);
+        snapshot.forEach((postDoc) => {
+            communityPosts.push({
+                id: postDoc.id,
+                ...postDoc.data()
+            });
+        });
 
-
-        snapshot.forEach(
-            (postDoc) => {
-
-                communityPosts.push({
-
-                    id: postDoc.id,
-
-                    ...postDoc.data()
-
-                });
-
-            }
-        );
-
-
-        displayCommunityPosts(
-            communityPosts
-        );
-
+        displayCommunityPosts(communityPosts);
 
     } catch (error) {
-
         console.error(
             "コミュニティ読み込みエラー:",
             error
         );
 
+        if (communityList) {
+            communityList.innerHTML =
+                "<p>投稿を読み込めませんでした。</p>";
+        }
     }
-
 }
 
 
-// ========================================
-// コミュニティ表示
-// ========================================
+// ==================================================
+// 10. コミュニティ表示
+// ==================================================
 
 function displayCommunityPosts(list) {
-
     if (!communityList) {
         return;
     }
 
-
     communityList.innerHTML = "";
 
-
     if (list.length === 0) {
-
         communityList.innerHTML =
             "<p>まだ投稿がありません。</p>";
-
         return;
-
     }
 
-
-    list.forEach((post) => {
-
-        let editButton = "";
-
-        let deleteButton = "";
-
-
-        // =================================
-        // 編集
-        // 本人だけ
-        // =================================
-
-        if (
+    const html = list.map((post) => {
+        const canEdit =
             currentUser &&
-            currentUser.uid === post.uid
-        ) {
+            currentUser.uid === post.uid;
 
-            editButton = `
-                <button
-                    class="communityEditButton"
-                    data-id="${post.id}">
-                    編集
-                </button>
-            `;
-
-        }
-
-
-        // =================================
-        // 削除
-        // 本人 OR 管理者
-        // =================================
-
-        if (
+        const canDelete =
             currentUser &&
             (
                 currentUser.uid === post.uid ||
                 isAdmin()
-            )
-        ) {
+            );
 
-            deleteButton = `
+        const editButton = canEdit
+            ? `
+                <button
+                    class="communityEditButton"
+                    data-id="${escapeHTML(post.id)}"
+                >
+                    編集
+                </button>
+            `
+            : "";
+
+        const deleteButton = canDelete
+            ? `
                 <button
                     class="communityDeleteButton"
-                    data-id="${post.id}">
+                    data-id="${escapeHTML(post.id)}"
+                >
                     削除
                 </button>
-            `;
-
-        }
-
-
-        // =================================
-        // 写真 最大3枚
-        // =================================
+            `
+            : "";
 
         let imageHTML = "";
 
-
         if (
-            post.imageUrls &&
+            Array.isArray(post.imageUrls) &&
             post.imageUrls.length > 0
         ) {
+            const images = post.imageUrls
+                .filter(Boolean)
+                .slice(0, 3)
+                .map((url) => `
+                    <img
+                        src="${escapeHTML(url)}"
+                        class="community-image expandable-image"
+                        alt="コミュニティ写真"
+                        loading="lazy"
+                    >
+                `)
+                .join("");
 
-            imageHTML = `
-
-                <div class="community-images">
-
-                    ${post.imageUrls
-                        .slice(0, 3)
-                        .map(
-                            (url) => `
-
-                                <img
-                                    src="${url}"
-                                    class="community-image expandable-image"
-                                    alt="コミュニティ写真">
-
-                            `
-                        )
-                        .join("")}
-
-                </div>
-
-            `;
-
+            if (images) {
+                imageHTML = `
+                    <div class="community-images">
+                        ${images}
+                    </div>
+                `;
+            }
         }
 
+        const dateHTML = formatDate(post.createdAt);
 
-        // =================================
-        // 日付
-        // =================================
-
-        let dateHTML = "";
-
-
-        if (
-            post.createdAt &&
-            typeof post.createdAt.toDate === "function"
-        ) {
-
-            dateHTML =
-                post.createdAt
-                    .toDate()
-                    .toLocaleString(
-                        "ja-JP",
-                        {
-                            year: "numeric",
-                            month: "numeric",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        }
-                    );
-
-        }
-
-
-        // =================================
-        // カード
-        // =================================
-
-        communityList.innerHTML += `
-
-            <div class="card">
+        return `
+            <article class="card">
 
                 <h2>
-                    ${post.title || "タイトルなし"}
+                    ${escapeHTML(post.title || "タイトルなし")}
                 </h2>
 
                 <p>
-                    🏷️ ${getCategoryName(post.category)}
+                    🏷️ ${escapeHTML(
+                        getCategoryName(post.category)
+                    )}
                 </p>
 
                 ${imageHTML}
 
                 <p>
-                    ${post.content || ""}
+                    ${formatMultiline(post.content || "")}
                 </p>
 
                 <p class="post-date">
-                    ${dateHTML}
+                    ${escapeHTML(dateHTML)}
                 </p>
 
-                ${editButton}
+                <div class="card-actions">
+                    ${editButton}
+                    ${deleteButton}
+                </div>
 
-                ${deleteButton}
-
-            </div>
-
+            </article>
         `;
+    }).join("");
 
-    });
-
+    communityList.innerHTML = html;
 }
 
 
-// ========================================
-// カテゴリー
-// ========================================
-
-function getCategoryName(category) {
-
-    const categories = {
-
-        sharehouse:
-            "シェアハウス",
-
-        life:
-            "生活情報",
-
-        event:
-            "イベント",
-
-        question:
-            "質問",
-
-        recommend:
-            "おすすめ",
-
-        other:
-            "その他"
-
-    };
-
-
-    return (
-        categories[category] ||
-        category ||
-        "その他"
-    );
-
-}
-
-
-// ========================================
-// 求人タブ
-// ========================================
+// ==================================================
+// 11. 求人タブ
+// ==================================================
 
 if (jobsTab) {
+    jobsTab.addEventListener("click", () => {
+        currentTab = "jobs";
 
-    jobsTab.addEventListener(
-        "click",
-        () => {
-
-            currentTab = "jobs";
-
-
-            if (jobsSection) {
-
-                jobsSection.style.display =
-                    "block";
-
-            }
-
-
-            if (communitySection) {
-
-                communitySection.style.display =
-                    "none";
-
-            }
-
-
-            if (searchInput) {
-
-                searchInput.value = "";
-
-                searchInput.placeholder =
-                    "会社名・職種・地域で検索";
-
-            }
-
-
-            displayPosts(posts);
-
-
-            if (sideMenu) {
-
-                sideMenu.classList.remove(
-                    "open"
-                );
-
-            }
-
+        if (jobsSection) {
+            jobsSection.style.display = "block";
         }
-    );
 
+        if (communitySection) {
+            communitySection.style.display = "none";
+        }
+
+        if (searchInput) {
+            searchInput.value = "";
+            searchInput.placeholder =
+                "会社名・職種・地域で検索";
+        }
+
+        displayPosts(posts);
+
+        if (sideMenu) {
+            sideMenu.classList.remove("open");
+        }
+    });
 }
 
 
-// ========================================
-// コミュニティタブ
-// ========================================
+// ==================================================
+// 12. コミュニティタブ
+// ==================================================
 
 if (communityTab) {
+    communityTab.addEventListener("click", () => {
+        currentTab = "community";
 
-    communityTab.addEventListener(
-        "click",
-        () => {
-
-            currentTab =
-                "community";
-
-
-            if (jobsSection) {
-
-                jobsSection.style.display =
-                    "none";
-
-            }
-
-
-            if (communitySection) {
-
-                communitySection.style.display =
-                    "block";
-
-            }
-
-
-            if (searchInput) {
-
-                searchInput.value = "";
-
-                searchInput.placeholder =
-                    "タイトル・内容で検索";
-
-            }
-
-
-            displayCommunityPosts(
-                communityPosts
-            );
-
-
-            if (sideMenu) {
-
-                sideMenu.classList.remove(
-                    "open"
-                );
-
-            }
-
+        if (jobsSection) {
+            jobsSection.style.display = "none";
         }
-    );
 
+        if (communitySection) {
+            communitySection.style.display = "block";
+        }
+
+        if (searchInput) {
+            searchInput.value = "";
+            searchInput.placeholder =
+                "タイトル・内容で検索";
+        }
+
+        displayCommunityPosts(communityPosts);
+
+        if (sideMenu) {
+            sideMenu.classList.remove("open");
+        }
+    });
 }
 
 
-// ========================================
-// 検索
-// ========================================
+// ==================================================
+// 13. 検索
+// ==================================================
 
-if (
-    searchButton &&
-    searchInput
-) {
+if (searchButton && searchInput) {
+    searchButton.addEventListener("click", performSearch);
 
-    searchButton.addEventListener(
-        "click",
-        () => {
-
+    searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
             performSearch();
-
         }
-    );
-
-
-    searchInput.addEventListener(
-        "keydown",
-        (event) => {
-
-            if (
-                event.key === "Enter"
-            ) {
-
-                event.preventDefault();
-
-                performSearch();
-
-            }
-
-        }
-    );
-
+    });
 }
 
-
-// ========================================
-// 検索処理
-// ========================================
 
 function performSearch() {
-
     if (!searchInput) {
         return;
     }
 
-
     const keyword =
-        searchInput
-            .value
+        searchInput.value
             .trim()
             .toLowerCase();
 
+    if (currentTab === "jobs") {
+        const result = posts.filter((post) => {
+            return (
+                String(post.companyName || "")
+                    .toLowerCase()
+                    .includes(keyword) ||
 
-    // 求人
-    if (
-        currentTab === "jobs"
-    ) {
+                String(post.jobTitle || "")
+                    .toLowerCase()
+                    .includes(keyword) ||
 
-        const result =
-            posts.filter(
-                (post) => {
+                String(post.location || "")
+                    .toLowerCase()
+                    .includes(keyword) ||
 
-                    return (
-
-                        (post.companyName || "")
-                            .toLowerCase()
-                            .includes(keyword)
-
-                        ||
-
-                        (post.jobTitle || "")
-                            .toLowerCase()
-                            .includes(keyword)
-
-                        ||
-
-                        (post.location || "")
-                            .toLowerCase()
-                            .includes(keyword)
-
-                        ||
-
-                        (post.jobDetails || "")
-                            .toLowerCase()
-                            .includes(keyword)
-
-                    );
-
-                }
+                String(post.jobDetails || "")
+                    .toLowerCase()
+                    .includes(keyword)
             );
-
+        });
 
         displayPosts(result);
-
+        return;
     }
 
+    const result = communityPosts.filter((post) => {
+        return (
+            String(post.title || "")
+                .toLowerCase()
+                .includes(keyword) ||
 
-    // コミュニティ
-    else {
+            String(post.content || "")
+                .toLowerCase()
+                .includes(keyword) ||
 
-        const result =
-            communityPosts.filter(
-                (post) => {
-
-                    return (
-
-                        (post.title || "")
-                            .toLowerCase()
-                            .includes(keyword)
-
-                        ||
-
-                        (post.content || "")
-                            .toLowerCase()
-                            .includes(keyword)
-
-                        ||
-
-                        getCategoryName(
-                            post.category
-                        )
-                            .toLowerCase()
-                            .includes(keyword)
-
-                    );
-
-                }
-            );
-
-
-        displayCommunityPosts(
-            result
+            String(getCategoryName(post.category))
+                .toLowerCase()
+                .includes(keyword)
         );
+    });
 
-    }
-
+    displayCommunityPosts(result);
 }
 
 
-// ========================================
-// 求人投稿
-// ========================================
+// ==================================================
+// 14. 新規投稿ボタン
+// ==================================================
 
 if (newPostButton) {
-
-    newPostButton.addEventListener(
-        "click",
-        () => {
-
-            if (!currentUser) {
-
-                alert(
-                    "ログインしてください"
-                );
-
-                window.location.href =
-                    "login.html";
-
-                return;
-
-            }
-
-
-            window.location.href =
-                "post.html";
-
+    newPostButton.addEventListener("click", () => {
+        if (!currentUser) {
+            alert("ログインしてください");
+            window.location.href = "login.html";
+            return;
         }
-    );
 
+        window.location.href = "post.html";
+    });
 }
 
-
-// ========================================
-// コミュニティ投稿
-// ========================================
 
 if (communityPostButton) {
-
-    communityPostButton.addEventListener(
-        "click",
-        () => {
-
-            if (!currentUser) {
-
-                alert(
-                    "ログインしてください"
-                );
-
-                window.location.href =
-                    "login.html";
-
-                return;
-
-            }
-
-
-            window.location.href =
-                "community.html";
-
+    communityPostButton.addEventListener("click", () => {
+        if (!currentUser) {
+            alert("ログインしてください");
+            window.location.href = "login.html";
+            return;
         }
-    );
 
+        window.location.href = "community.html";
+    });
 }
 
 
-// ========================================
-// 求人
-// 詳細・編集・削除・写真拡大
-// ========================================
+// ==================================================
+// 15. 求人：詳細・編集・削除・写真拡大
+// ==================================================
 
 if (postList) {
+    postList.addEventListener("click", async (event) => {
+        const target = event.target;
 
-    postList.addEventListener(
-        "click",
-        async (event) => {
-
-
-            // 写真拡大
-            if (
-                event.target
-                    .classList
-                    .contains(
-                        "expandable-image"
-                    )
-            ) {
-
-                openImageModal(
-                    event.target.src
-                );
-
-                return;
-
-            }
-
-
-            // 詳細
-            if (
-                event.target
-                    .classList
-                    .contains(
-                        "detailButton"
-                    )
-            ) {
-
-                const id =
-                    event.target.dataset.id;
-
-
-                window.location.href =
-                    `detail.html?id=${id}`;
-
-
-                return;
-
-            }
-
-
-            // 編集
-            if (
-                event.target
-                    .classList
-                    .contains(
-                        "editButton"
-                    )
-            ) {
-
-                const id =
-                    event.target.dataset.id;
-
-
-                window.location.href =
-                    `edit.html?id=${id}`;
-
-
-                return;
-
-            }
-
-
-            // 削除
-            if (
-                !event.target
-                    .classList
-                    .contains(
-                        "deleteButton"
-                    )
-            ) {
-
-                return;
-
-            }
-
-
-            const id =
-                event.target.dataset.id;
-
-
-            const ok =
-                confirm(
-                    isAdmin()
-                        ? "管理者としてこの求人を削除しますか？"
-                        : "この求人を削除しますか？"
-                );
-
-
-            if (!ok) {
-                return;
-            }
-
-
-            try {
-
-                await deleteDoc(
-                    doc(
-                        db,
-                        "posts",
-                        id
-                    )
-                );
-
-
-                alert(
-                    "削除しました"
-                );
-
-
-                await loadPosts();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-
-                alert(
-                    "削除できませんでした：" +
-                    error.message
-                );
-
-            }
-
+        if (!(target instanceof Element)) {
+            return;
         }
-    );
 
+        if (target.classList.contains("expandable-image")) {
+            openImageModal(target.getAttribute("src") || "");
+            return;
+        }
+
+        if (target.classList.contains("detailButton")) {
+            const id = target.dataset.id;
+
+            if (id) {
+                window.location.href =
+                    `detail.html?id=${encodeURIComponent(id)}`;
+            }
+
+            return;
+        }
+
+        if (target.classList.contains("editButton")) {
+            const id = target.dataset.id;
+
+            if (id) {
+                window.location.href =
+                    `edit.html?id=${encodeURIComponent(id)}`;
+            }
+
+            return;
+        }
+
+        if (!target.classList.contains("deleteButton")) {
+            return;
+        }
+
+        const id = target.dataset.id;
+
+        if (!id) {
+            return;
+        }
+
+        const ok = confirm(
+            isAdmin()
+                ? "管理者としてこの求人を削除しますか？"
+                : "この求人を削除しますか？"
+        );
+
+        if (!ok) {
+            return;
+        }
+
+        try {
+            await deleteDoc(
+                doc(db, "posts", id)
+            );
+
+            alert("削除しました");
+            await loadPosts();
+
+        } catch (error) {
+            console.error("求人削除エラー:", error);
+
+            alert(
+                "削除できませんでした：" +
+                (error?.message || "不明なエラー")
+            );
+        }
+    });
 }
 
 
-// ========================================
-// コミュニティ
-// 編集・削除・写真拡大
-// ========================================
+// ==================================================
+// 16. コミュニティ：編集・削除・写真拡大
+// ==================================================
 
 if (communityList) {
+    communityList.addEventListener("click", async (event) => {
+        const target = event.target;
 
-    communityList.addEventListener(
-        "click",
-        async (event) => {
-
-
-            // 写真拡大
-            if (
-                event.target
-                    .classList
-                    .contains(
-                        "expandable-image"
-                    )
-            ) {
-
-                openImageModal(
-                    event.target.src
-                );
-
-                return;
-
-            }
-
-
-            // 編集
-            if (
-                event.target
-                    .classList
-                    .contains(
-                        "communityEditButton"
-                    )
-            ) {
-
-                const id =
-                    event.target.dataset.id;
-
-
-                window.location.href =
-                    `community-edit.html?id=${id}`;
-
-
-                return;
-
-            }
-
-
-            // 削除
-            if (
-                !event.target
-                    .classList
-                    .contains(
-                        "communityDeleteButton"
-                    )
-            ) {
-
-                return;
-
-            }
-
-
-            const id =
-                event.target.dataset.id;
-
-
-            const ok =
-                confirm(
-                    isAdmin()
-                        ? "管理者としてこの投稿を削除しますか？"
-                        : "この投稿を削除しますか？"
-                );
-
-
-            if (!ok) {
-                return;
-            }
-
-
-            try {
-
-                await deleteDoc(
-                    doc(
-                        db,
-                        "communityPosts",
-                        id
-                    )
-                );
-
-
-                alert(
-                    "削除しました"
-                );
-
-
-                await loadCommunityPosts();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-
-                alert(
-                    "削除できませんでした：" +
-                    error.message
-                );
-
-            }
-
+        if (!(target instanceof Element)) {
+            return;
         }
-    );
 
+        if (target.classList.contains("expandable-image")) {
+            openImageModal(target.getAttribute("src") || "");
+            return;
+        }
+
+        if (target.classList.contains("communityEditButton")) {
+            const id = target.dataset.id;
+
+            if (id) {
+                window.location.href =
+                    `community-edit.html?id=${encodeURIComponent(id)}`;
+            }
+
+            return;
+        }
+
+        if (
+            !target.classList.contains(
+                "communityDeleteButton"
+            )
+        ) {
+            return;
+        }
+
+        const id = target.dataset.id;
+
+        if (!id) {
+            return;
+        }
+
+        const ok = confirm(
+            isAdmin()
+                ? "管理者としてこの投稿を削除しますか？"
+                : "この投稿を削除しますか？"
+        );
+
+        if (!ok) {
+            return;
+        }
+
+        try {
+            await deleteDoc(
+                doc(db, "communityPosts", id)
+            );
+
+            alert("削除しました");
+            await loadCommunityPosts();
+
+        } catch (error) {
+            console.error(
+                "コミュニティ削除エラー:",
+                error
+            );
+
+            alert(
+                "削除できませんでした：" +
+                (error?.message || "不明なエラー")
+            );
+        }
+    });
 }
 
 
-// ========================================
-// 写真拡大
-// ========================================
+// ==================================================
+// 17. 写真拡大モーダル
+// ==================================================
 
 function openImageModal(url) {
-
     if (
+        !url ||
         !imageModal ||
         !modalImage
     ) {
-
         return;
-
     }
-
 
     modalImage.src = url;
+    imageModal.classList.add("open");
 
-    imageModal.classList.add(
-        "open"
-    );
+    // CSS側に .image-modal.open がなくても
+    // 確実に表示できるようにする
+    imageModal.style.display = "block";
 
+    document.body.style.overflow = "hidden";
 }
 
 
-// ========================================
-// ×で閉じる
-// ========================================
+function closeModal() {
+    if (!imageModal) {
+        return;
+    }
 
-if (
-    closeImageModal &&
-    imageModal
-) {
+    imageModal.classList.remove("open");
+    imageModal.style.display = "none";
 
+    if (modalImage) {
+        modalImage.src = "";
+    }
+
+    document.body.style.overflow = "";
+}
+
+
+if (closeImageModal) {
     closeImageModal.addEventListener(
         "click",
-        () => {
-
-            imageModal.classList.remove(
-                "open"
-            );
-
-        }
+        closeModal
     );
-
 }
 
-
-// ========================================
-// 背景クリックで閉じる
-// ========================================
 
 if (imageModal) {
-
-    imageModal.addEventListener(
-        "click",
-        (event) => {
-
-            if (
-                event.target === imageModal
-            ) {
-
-                imageModal.classList.remove(
-                    "open"
-                );
-
-            }
-
+    imageModal.addEventListener("click", (event) => {
+        if (event.target === imageModal) {
+            closeModal();
         }
-    );
-
+    });
 }
 
 
-// ========================================
-// Escapeで閉じる
-// ========================================
-
-document.addEventListener(
-    "keydown",
-    (event) => {
-
-        if (
-            event.key === "Escape" &&
-            imageModal
-        ) {
-
-            imageModal.classList.remove(
-                "open"
-            );
-
-        }
-
+document.addEventListener("keydown", (event) => {
+    if (
+        event.key === "Escape" &&
+        imageModal &&
+        imageModal.style.display === "block"
+    ) {
+        closeModal();
     }
-);
+});

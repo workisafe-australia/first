@@ -473,14 +473,17 @@ form button {
 
 
 /* ==================================================
-   15. 求人投稿の画像
+   15. 投稿一覧の画像
+   求人・コミュニティ共通
 ================================================== */
 
-.job-image {
-    width: 10px;
-    height: 10px;
-
-    max-width: 100%;
+.job-image,
+.community-image,
+.job-thumbnail {
+    width: 80px;
+    height: 55px;
+    max-width: 80px;
+    max-height: 55px;
 
     object-fit: cover;
 
@@ -495,31 +498,7 @@ form button {
 
 
 /* ==================================================
-   16. コミュニティ投稿の画像
-
-   ★ 投稿一覧ではこのサイズになります
-================================================== */
-
-.community-image {
-    width: 10px;
-    height: 10px;
-
-    max-width: 100%;
-
-    object-fit: cover;
-
-    display: block;
-
-    margin: 15px 0;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-}
-
-
-/* ==================================================
-   17. 詳細ページ画像
+   16. 詳細ページ画像
 ================================================== */
 
 .detail-image {
@@ -540,7 +519,7 @@ form button {
 
 
 /* ==================================================
-   18. 編集ページの現在の画像
+   17. 編集ページの現在の画像
 ================================================== */
 
 .edit-image-preview {
@@ -560,7 +539,7 @@ form button {
 
 
 /* ==================================================
-   19. 画像モーダル
+   18. 画像モーダル
    写真をクリックした時の拡大表示
 ================================================== */
 
@@ -612,7 +591,7 @@ form button {
 
 
 /* ==================================================
-   20. リンク
+   19. リンク
 ================================================== */
 
 a {
@@ -625,7 +604,7 @@ a:hover {
 
 
 /* ==================================================
-   21. 利用規約チェックボックス
+   20. 利用規約チェックボックス
 ================================================== */
 
 .terms-checkbox {
@@ -646,7 +625,7 @@ a:hover {
 
 
 /* ==================================================
-   22. スマホ表示
+   21. スマホ表示
 ================================================== */
 
 @media (max-width: 600px) {
@@ -746,31 +725,22 @@ a:hover {
     }
 
 
-    /* ---------- 求人画像 ---------- */
+    /* ---------- 投稿一覧の画像 ---------- */
 
-    .job-image {
-        width: 150px;
-        height: 100px;
+    .job-image,
+    .community-image,
+    .job-thumbnail,
+    #communityList img {
+        width: 50px !important;
+        height: 40px !important;
+        max-width: 50px !important;
+        max-height: 40px !important;
 
-        max-width: 100%;
+        object-fit: cover !important;
 
-        object-fit: cover;
-    }
-
-
-    /* ---------- コミュニティ投稿画像 ---------- */
-
-    .community-image {
-        width: 100px !important;
-        height: 70px !important;
-        max-width: 100px !important;
-        max-height: 70px !important;
-    
-        object-fit: cover;
-    
-        display: block;
         margin: 10px 0;
     }
+
 
     /* ---------- 詳細画像 ---------- */
 
@@ -803,40 +773,4 @@ a:hover {
         max-width: 95%;
         max-height: 80vh;
     }
-}
-/* ========================================
-   投稿画像サイズ 最終設定
-======================================== */
-
-.community-image,
-.job-image,
-.job-thumbnail {
-    width: 80px !important;
-    height: 55px !important;
-    max-width: 80px !important;
-    max-height: 55px !important;
-    object-fit: cover !important;
-}
-
-/* スマホ */
-@media (max-width: 600px) {
-    .community-image,
-    .job-image,
-    .job-thumbnail {
-        width: 60px !important;
-        height: 45px !important;
-        max-width: 60px !important;
-        max-height: 45px !important;
-    }
-}
-@media (max-width: 600px) {
-
-    #communityList img {
-        width: 50px !important;
-        height: 40px !important;
-        max-width: 50px !important;
-        max-height: 40px !important;
-        object-fit: cover !important;
-    }
-
 }
