@@ -106,28 +106,6 @@ function formatDate(timestamp) {
 }
 
 
-// ==================================================
-// 5. 7日以内の投稿かチェック
-// ==================================================
-
-function isWithin7Days(timestamp) {
-    if (
-        !timestamp ||
-        typeof timestamp.toDate !== "function"
-    ) {
-        return false;
-    }
-
-    const createdDate = timestamp.toDate();
-    const now = new Date();
-
-    const sevenDays =
-        7 * 24 * 60 * 60 * 1000;
-
-    return now - createdDate < sevenDays;
-}
-
-
 function getCategoryName(category) {
     const categories = {
         sharehouse: "シェアハウス",
@@ -143,7 +121,7 @@ function getCategoryName(category) {
 
 
 // ==================================================
-// 6. サイドメニュー
+// 5. サイドメニュー
 // ==================================================
 
 if (menuButton && sideMenu) {
@@ -161,7 +139,7 @@ if (closeMenuButton && sideMenu) {
 
 
 // ==================================================
-// 7. ログイン状態
+// 6. ログイン状態
 // ==================================================
 
 onAuthStateChanged(auth, async (user) => {
@@ -175,8 +153,7 @@ onAuthStateChanged(auth, async (user) => {
 
 
 // ==================================================
-// 8. 求人データ読み込み
-// 7日を過ぎた求人は表示しない
+// 7. 求人データ読み込み
 // ==================================================
 
 async function loadPosts() {
@@ -191,14 +168,10 @@ async function loadPosts() {
         const snapshot = await getDocs(postsQuery);
 
         snapshot.forEach((postDoc) => {
-            const data = postDoc.data();
-
-            if (isWithin7Days(data.createdAt)) {
-                posts.push({
-                    id: postDoc.id,
-                    ...data
-                });
-            }
+            posts.push({
+                id: postDoc.id,
+                ...postDoc.data()
+            });
         });
 
         displayPosts(posts);
@@ -215,7 +188,7 @@ async function loadPosts() {
 
 
 // ==================================================
-// 9. 求人表示
+// 8. 求人表示
 // ==================================================
 
 function displayPosts(list) {
@@ -310,6 +283,7 @@ function displayPosts(list) {
                 </p>
 
                 <div class="card-actions">
+
                     <button
                         class="detailButton"
                         data-id="${escapeHTML(post.id)}"
@@ -319,6 +293,7 @@ function displayPosts(list) {
 
                     ${editButton}
                     ${deleteButton}
+
                 </div>
 
             </article>
@@ -330,7 +305,7 @@ function displayPosts(list) {
 
 
 // ==================================================
-// 10. コミュニティデータ読み込み
+// 9. コミュニティデータ読み込み
 // ==================================================
 
 async function loadCommunityPosts() {
@@ -368,7 +343,7 @@ async function loadCommunityPosts() {
 
 
 // ==================================================
-// 11. コミュニティ表示
+// 10. コミュニティ表示
 // ==================================================
 
 function displayCommunityPosts(list) {
@@ -485,7 +460,7 @@ function displayCommunityPosts(list) {
 
 
 // ==================================================
-// 12. 求人タブ
+// 11. 求人タブ
 // ==================================================
 
 if (jobsTab) {
@@ -516,7 +491,7 @@ if (jobsTab) {
 
 
 // ==================================================
-// 13. コミュニティタブ
+// 12. コミュニティタブ
 // ==================================================
 
 if (communityTab) {
@@ -547,18 +522,24 @@ if (communityTab) {
 
 
 // ==================================================
-// 14. 検索
+// 13. 検索
 // ==================================================
 
 if (searchButton && searchInput) {
-    searchButton.addEventListener("click", performSearch);
+    searchButton.addEventListener(
+        "click",
+        performSearch
+    );
 
-    searchInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            performSearch();
+    searchInput.addEventListener(
+        "keydown",
+        (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                performSearch();
+            }
         }
-    });
+    );
 }
 
 
@@ -618,7 +599,7 @@ function performSearch() {
 
 
 // ==================================================
-// 15. 新規投稿ボタン
+// 14. 新規投稿ボタン
 // ==================================================
 
 if (newPostButton) {
@@ -648,7 +629,7 @@ if (communityPostButton) {
 
 
 // ==================================================
-// 16. 求人：詳細・編集・削除・写真拡大
+// 15. 求人：詳細・編集・削除・写真拡大
 // ==================================================
 
 if (postList) {
@@ -659,10 +640,14 @@ if (postList) {
             return;
         }
 
+
         if (target.classList.contains("expandable-image")) {
-            openImageModal(target.getAttribute("src") || "");
+            openImageModal(
+                target.getAttribute("src") || ""
+            );
             return;
         }
+
 
         if (target.classList.contains("detailButton")) {
             const id = target.dataset.id;
@@ -675,6 +660,7 @@ if (postList) {
             return;
         }
 
+
         if (target.classList.contains("editButton")) {
             const id = target.dataset.id;
 
@@ -686,15 +672,18 @@ if (postList) {
             return;
         }
 
+
         if (!target.classList.contains("deleteButton")) {
             return;
         }
+
 
         const id = target.dataset.id;
 
         if (!id) {
             return;
         }
+
 
         const ok = confirm(
             isAdmin()
@@ -706,89 +695,19 @@ if (postList) {
             return;
         }
 
+
         try {
             await deleteDoc(
                 doc(db, "posts", id)
             );
 
             alert("削除しました");
+
             await loadPosts();
 
         } catch (error) {
-            console.error("求人削除エラー:", error);
-
-            alert(
-                "削除できませんでした：" +
-                (error?.message || "不明なエラー")
-            );
-        }
-    });
-}
-
-
-// ==================================================
-// 17. コミュニティ：編集・削除・写真拡大
-// ==================================================
-
-if (communityList) {
-    communityList.addEventListener("click", async (event) => {
-        const target = event.target;
-
-        if (!(target instanceof Element)) {
-            return;
-        }
-
-        if (target.classList.contains("expandable-image")) {
-            openImageModal(target.getAttribute("src") || "");
-            return;
-        }
-
-        if (target.classList.contains("communityEditButton")) {
-            const id = target.dataset.id;
-
-            if (id) {
-                window.location.href =
-                    `community-edit.html?id=${encodeURIComponent(id)}`;
-            }
-
-            return;
-        }
-
-        if (
-            !target.classList.contains(
-                "communityDeleteButton"
-            )
-        ) {
-            return;
-        }
-
-        const id = target.dataset.id;
-
-        if (!id) {
-            return;
-        }
-
-        const ok = confirm(
-            isAdmin()
-                ? "管理者としてこの投稿を削除しますか？"
-                : "この投稿を削除しますか？"
-        );
-
-        if (!ok) {
-            return;
-        }
-
-        try {
-            await deleteDoc(
-                doc(db, "communityPosts", id)
-            );
-
-            alert("削除しました");
-            await loadCommunityPosts();
-
-        } catch (error) {
             console.error(
-                "コミュニティ削除エラー:",
+                "求人削除エラー:",
                 error
             );
 
@@ -802,7 +721,107 @@ if (communityList) {
 
 
 // ==================================================
-// 18. 写真拡大モーダル
+// 16. コミュニティ：編集・削除・写真拡大
+// ==================================================
+
+if (communityList) {
+    communityList.addEventListener(
+        "click",
+        async (event) => {
+
+            const target = event.target;
+
+            if (!(target instanceof Element)) {
+                return;
+            }
+
+
+            if (
+                target.classList.contains(
+                    "expandable-image"
+                )
+            ) {
+                openImageModal(
+                    target.getAttribute("src") || ""
+                );
+                return;
+            }
+
+
+            if (
+                target.classList.contains(
+                    "communityEditButton"
+                )
+            ) {
+                const id = target.dataset.id;
+
+                if (id) {
+                    window.location.href =
+                        `community-edit.html?id=${encodeURIComponent(id)}`;
+                }
+
+                return;
+            }
+
+
+            if (
+                !target.classList.contains(
+                    "communityDeleteButton"
+                )
+            ) {
+                return;
+            }
+
+
+            const id = target.dataset.id;
+
+            if (!id) {
+                return;
+            }
+
+
+            const ok = confirm(
+                isAdmin()
+                    ? "管理者としてこの投稿を削除しますか？"
+                    : "この投稿を削除しますか？"
+            );
+
+            if (!ok) {
+                return;
+            }
+
+
+            try {
+                await deleteDoc(
+                    doc(
+                        db,
+                        "communityPosts",
+                        id
+                    )
+                );
+
+                alert("削除しました");
+
+                await loadCommunityPosts();
+
+            } catch (error) {
+                console.error(
+                    "コミュニティ削除エラー:",
+                    error
+                );
+
+                alert(
+                    "削除できませんでした：" +
+                    (error?.message || "不明なエラー")
+                );
+            }
+        }
+    );
+}
+
+
+// ==================================================
+// 17. 写真拡大モーダル
 // ==================================================
 
 function openImageModal(url) {
@@ -815,8 +834,8 @@ function openImageModal(url) {
     }
 
     modalImage.src = url;
-    imageModal.classList.add("open");
 
+    imageModal.classList.add("open");
     imageModal.style.display = "block";
 
     document.body.style.overflow = "hidden";
@@ -848,20 +867,26 @@ if (closeImageModal) {
 
 
 if (imageModal) {
-    imageModal.addEventListener("click", (event) => {
-        if (event.target === imageModal) {
-            closeModal();
+    imageModal.addEventListener(
+        "click",
+        (event) => {
+            if (event.target === imageModal) {
+                closeModal();
+            }
         }
-    });
+    );
 }
 
 
-document.addEventListener("keydown", (event) => {
-    if (
-        event.key === "Escape" &&
-        imageModal &&
-        imageModal.style.display === "block"
-    ) {
-        closeModal();
+document.addEventListener(
+    "keydown",
+    (event) => {
+        if (
+            event.key === "Escape" &&
+            imageModal &&
+            imageModal.style.display === "block"
+        ) {
+            closeModal();
+        }
     }
-});
+);
