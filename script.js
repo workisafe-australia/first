@@ -106,6 +106,28 @@ function formatDate(timestamp) {
 }
 
 
+// ==================================================
+// 5. 7日以内の投稿かチェック
+// ==================================================
+
+function isWithin7Days(timestamp) {
+    if (
+        !timestamp ||
+        typeof timestamp.toDate !== "function"
+    ) {
+        return false;
+    }
+
+    const createdDate = timestamp.toDate();
+    const now = new Date();
+
+    const sevenDays =
+        7 * 24 * 60 * 60 * 1000;
+
+    return now - createdDate < sevenDays;
+}
+
+
 function getCategoryName(category) {
     const categories = {
         sharehouse: "シェアハウス",
@@ -121,7 +143,7 @@ function getCategoryName(category) {
 
 
 // ==================================================
-// 5. サイドメニュー
+// 6. サイドメニュー
 // ==================================================
 
 if (menuButton && sideMenu) {
@@ -139,7 +161,7 @@ if (closeMenuButton && sideMenu) {
 
 
 // ==================================================
-// 6. ログイン状態
+// 7. ログイン状態
 // ==================================================
 
 onAuthStateChanged(auth, async (user) => {
@@ -153,7 +175,8 @@ onAuthStateChanged(auth, async (user) => {
 
 
 // ==================================================
-// 7. 求人データ読み込み
+// 8. 求人データ読み込み
+// 7日を過ぎた求人は表示しない
 // ==================================================
 
 async function loadPosts() {
@@ -168,10 +191,14 @@ async function loadPosts() {
         const snapshot = await getDocs(postsQuery);
 
         snapshot.forEach((postDoc) => {
-            posts.push({
-                id: postDoc.id,
-                ...postDoc.data()
-            });
+            const data = postDoc.data();
+
+            if (isWithin7Days(data.createdAt)) {
+                posts.push({
+                    id: postDoc.id,
+                    ...data
+                });
+            }
         });
 
         displayPosts(posts);
@@ -188,7 +215,7 @@ async function loadPosts() {
 
 
 // ==================================================
-// 8. 求人表示
+// 9. 求人表示
 // ==================================================
 
 function displayPosts(list) {
@@ -303,7 +330,7 @@ function displayPosts(list) {
 
 
 // ==================================================
-// 9. コミュニティデータ読み込み
+// 10. コミュニティデータ読み込み
 // ==================================================
 
 async function loadCommunityPosts() {
@@ -341,7 +368,7 @@ async function loadCommunityPosts() {
 
 
 // ==================================================
-// 10. コミュニティ表示
+// 11. コミュニティ表示
 // ==================================================
 
 function displayCommunityPosts(list) {
@@ -458,7 +485,7 @@ function displayCommunityPosts(list) {
 
 
 // ==================================================
-// 11. 求人タブ
+// 12. 求人タブ
 // ==================================================
 
 if (jobsTab) {
@@ -489,7 +516,7 @@ if (jobsTab) {
 
 
 // ==================================================
-// 12. コミュニティタブ
+// 13. コミュニティタブ
 // ==================================================
 
 if (communityTab) {
@@ -520,7 +547,7 @@ if (communityTab) {
 
 
 // ==================================================
-// 13. 検索
+// 14. 検索
 // ==================================================
 
 if (searchButton && searchInput) {
@@ -591,7 +618,7 @@ function performSearch() {
 
 
 // ==================================================
-// 14. 新規投稿ボタン
+// 15. 新規投稿ボタン
 // ==================================================
 
 if (newPostButton) {
@@ -621,7 +648,7 @@ if (communityPostButton) {
 
 
 // ==================================================
-// 15. 求人：詳細・編集・削除・写真拡大
+// 16. 求人：詳細・編集・削除・写真拡大
 // ==================================================
 
 if (postList) {
@@ -700,7 +727,7 @@ if (postList) {
 
 
 // ==================================================
-// 16. コミュニティ：編集・削除・写真拡大
+// 17. コミュニティ：編集・削除・写真拡大
 // ==================================================
 
 if (communityList) {
@@ -775,7 +802,7 @@ if (communityList) {
 
 
 // ==================================================
-// 17. 写真拡大モーダル
+// 18. 写真拡大モーダル
 // ==================================================
 
 function openImageModal(url) {
@@ -790,8 +817,6 @@ function openImageModal(url) {
     modalImage.src = url;
     imageModal.classList.add("open");
 
-    // CSS側に .image-modal.open がなくても
-    // 確実に表示できるようにする
     imageModal.style.display = "block";
 
     document.body.style.overflow = "hidden";
